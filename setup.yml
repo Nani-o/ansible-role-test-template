@@ -1,0 +1,26 @@
+---
+- hosts: localhost
+  vars:
+    git_repos:
+      - src: https://github.com/Nani-o/ansible-role-lxd-deploy
+        name: lxd-deploy
+        path: "{{ playbook_dir }}/roles/"
+    file_downloads:
+      - src: https://raw.githubusercontent.com/Nani-o/ansible/lxd_network/lib/ansible/modules/cloud/lxd/lxd_network.py
+        name: lxd_network.py
+        path: "{{ playbook_dir }}/modules/"
+  tasks:
+    - name: Clone/Pull of repositories
+      git:
+        repo: "{{ item.src }}"
+        dest: "{{ item.path }}/{{ item.name }}"
+        clone: yes
+        update: yes
+        force: yes
+      with_items: "{{ git_repos }}"
+
+    - name: Download files
+      get_url:
+        url: "{{ item.src }}"
+        dest: "{{ item.path }}/{{ item.name }}"
+      with_items: "{{ file_downloads }}"
