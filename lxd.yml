@@ -34,5 +34,3 @@
           - default
   roles:
     - lxd-deploy
-
-- import_playbook: /etc/ansible/roles/role-to-test/tests/test.yml
