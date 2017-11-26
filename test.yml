@@ -27,7 +27,7 @@
         description: "Default Network"
 
     lxd_deploy_containers:
-      - name: "{{ lookup('env','lxd_container_name') }}"
+      - name: container
         alias: "{{ lookup('env','lxd_container_alias') }}"
         profiles:
           - default
