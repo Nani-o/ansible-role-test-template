@@ -65,6 +65,7 @@ tail ${idempotence} | grep -q 'changed=0.*failed=0' \
   || (message "${RED}" "Idempotence test: fail" && exit 1)
 
 # Additional tests if present
-[[ -f "${TEST_DIR}/test.sh" ]] && "${TEST_DIR}/test.sh"
+[[ -f "${TEST_DIR}/post-check.yml" ]] && (execution_message sudo -E ansible-playbook "${TEST_DIR}/post-check.yml" && sudo -E ansible-playbook "${TEST_DIR}/post-check.yml")
+[[ -f "${TEST_DIR}/test.sh" ]] && (execution_message sudo -E "${TEST_DIR}/test.sh" && sudo -E "${TEST_DIR}/test.sh")
 
 exit 0
