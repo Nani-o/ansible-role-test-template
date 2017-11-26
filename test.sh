@@ -44,6 +44,9 @@ cp -rf "$(pwd)" "${ROLE_DIR}"
 
 ####################################################################################
 
+# Run role setup if present
+[[ -f "${TEST_DIR}/setup.yml" ]] && (execution_message sudo -E ansible-playbook "${TEST_DIR}/setup.yml" && sudo -E ansible-playbook "${TEST_DIR}/setup.yml")
+
 # Syntax Checking
 message "${GREEN}" "Checking role syntax"
 execution_message sudo -E ansible-playbook "${TEST_DIR}/test.yml" --syntax-check
@@ -64,7 +67,7 @@ tail ${idempotence} | grep -q 'changed=0.*failed=0' \
   && (message "${GREEN}" "Idempotence test: pass") \
   || (message "${RED}" "Idempotence test: fail" && exit 1)
 
-# Additional tests if present
+# Run additional tests if present
 [[ -f "${TEST_DIR}/post-check.yml" ]] && (execution_message sudo -E ansible-playbook "${TEST_DIR}/post-check.yml" && sudo -E ansible-playbook "${TEST_DIR}/post-check.yml")
 [[ -f "${TEST_DIR}/test.sh" ]] && (execution_message sudo -E "${TEST_DIR}/test.sh" && sudo -E "${TEST_DIR}/test.sh")
 
