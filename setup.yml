@@ -10,6 +10,14 @@
         name: lxd_network.py
         path: "{{ playbook_dir }}/modules/"
   tasks:
+    - name: Make sure folders exists
+      file:
+        path: "{{ item.path }}"
+        state: directory
+      with_items:
+        - "{{ git_repos }}"
+        - "{{ file_downloads }}"
+
     - name: Clone/Pull of repositories
       git:
         repo: "{{ item.src }}"
