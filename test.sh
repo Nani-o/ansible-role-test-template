@@ -31,12 +31,14 @@ function execution_message()
 ####################################################################################
 
 # Setting up the test environment
+message "${GREEN}" "Setting up the environment for testing"
 execution_message ansible-playbook "${DIR}/setup.yml"
 ansible-playbook "${DIR}/setup.yml"
 execution_message sudo -E ansible-playbook "${DIR}/lxd.yml"
 sudo -E ansible-playbook "${DIR}/lxd.yml"
 
 # Copying the role to test
+message "${GREEN}" "Copying the role to test"
 execution_message cp -rf "$(pwd)" "${ROLE_DIR}"
 cp -rf "$(pwd)" "${ROLE_DIR}"
 
