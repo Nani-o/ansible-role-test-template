@@ -33,4 +33,4 @@
         profiles:
           - default
   roles:
-    - lxd-deploy
+    - lxd

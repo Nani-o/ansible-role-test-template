@@ -2,13 +2,9 @@
 - hosts: localhost
   vars:
     git_repos:
-      - src: https://github.com/Nani-o/ansible-role-lxd-deploy
-        name: lxd-deploy
+      - src: https://github.com/Nani-o/ansible-role-lxd
+        name: lxd
         path: "{{ playbook_dir }}/roles/"
-    file_downloads:
-      - src: https://raw.githubusercontent.com/Nani-o/ansible/lxd_network/lib/ansible/modules/cloud/lxd/lxd_network.py
-        name: lxd_network.py
-        path: "{{ playbook_dir }}/library/"
   tasks:
     - name: Make sure folders exists
       file:
