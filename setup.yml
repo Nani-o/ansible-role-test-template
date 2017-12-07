@@ -10,9 +10,10 @@
       file:
         path: "{{ item.path }}"
         state: directory
+      when: item.path is defined
       with_items:
-        - "{{ git_repos }}"
-        - "{{ file_downloads }}"
+        - "{{ git_repos | default([]) }}"
+        - "{{ file_downloads | default([]) }}"
 
     - name: Clone/Pull of repositories
       git:
@@ -21,10 +22,12 @@
         clone: yes
         update: yes
         force: yes
+      when: git_repos is defined
       with_items: "{{ git_repos }}"
 
     - name: Download files
       get_url:
         url: "{{ item.src }}"
         dest: "{{ item.path }}/{{ item.name }}"
+      when: files_downloads is defined
       with_items: "{{ file_downloads }}"
