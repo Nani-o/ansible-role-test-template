@@ -27,6 +27,10 @@ function execution_message()
 {
     message "${CYAN}" "Executing : ${@}"
 }
+####################################################################################
+
+# Installing Ansible
+sudo -H pip install ansible python-netaddr
 
 ####################################################################################
 
