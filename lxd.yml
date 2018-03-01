@@ -16,7 +16,6 @@
             type: "nic"
           root:
             path: "/"
-            pool: "default"
             type: "disk"
 
     lxd_bridge:
