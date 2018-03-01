@@ -30,7 +30,7 @@ function execution_message()
 ####################################################################################
 
 # Installing Ansible
-sudo -H pip install ansible python-netaddr
+sudo -H pip install ansible netaddr
 
 ####################################################################################
 
