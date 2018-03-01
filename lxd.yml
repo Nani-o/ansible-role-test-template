@@ -2,7 +2,7 @@
 - hosts: localhost
   become: yes
   vars:
-    lxd_deploy_profiles:
+    lxd_profiles:
       - name: "default"
         description: "Default LXD profile"
         config:
@@ -19,15 +19,12 @@
             pool: "default"
             type: "disk"
 
-    lxd_deploy_networks:
-      - name: lxdbr0
-        config:
-          ipv4.address: "192.168.2.1/24"
-          ipv4.nat: "true"
-          ipv6.address: "none"
-        description: "Default Network"
+    lxd_bridge:
+      ipv4:
+        address: "192.168.2.1/24"
+        nat: "true"
 
-    lxd_deploy_containers:
+    lxd_containers:
       - name: container
         alias: "{{ lookup('env','lxd_container_alias') }}"
         profiles:
