@@ -51,6 +51,9 @@ cp -rf "$(pwd)" "${ROLE_DIR}"
 # Run role setup if present
 [[ -f "${TEST_DIR}/setup.yml" ]] && (execution_message sudo -E ansible-playbook "${TEST_DIR}/setup.yml" && sudo -E ansible-playbook "${TEST_DIR}/setup.yml")
 
+# Get inventory if supplied
+[[ -f "${TEST_DIR}/inventory" ]] && cp -rf "${TEST_DIR}/inventory" /etc/ansible/
+
 # Syntax Checking
 message "${GREEN}" "Checking role syntax"
 execution_message sudo -E ansible-playbook "${TEST_DIR}/test.yml" --syntax-check
