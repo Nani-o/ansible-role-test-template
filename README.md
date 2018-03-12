@@ -4,7 +4,7 @@ Template for testing roles
 This an Ansible project template that I use with travis to test my roles. The main idea behind this is :
 
   - Setting up an ansible project
-  - Execute my lxd-deploy role to deploy a container using ENVIRONMENT variables
+  - Execute my lxd role to deploy a container using ENVIRONMENT variables
   - Execute the role to test on the container
 
 Requirements
