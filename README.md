@@ -19,7 +19,9 @@ Requirements
 
 The purpose of this project is to be used with travis, as of now it means running on Ubuntu trusty.
 
-For using this template, the role to be tested should have a **tests** folder with a test.yml playbook.
+### test folder
+
+In order to use this template, the role to be tested should have a **tests** folder with a **test.yml** playbook.
 
 ```
 tests
@@ -28,7 +30,18 @@ tests
  |-- test.sh ............. Optionnal script for running any test you'd like with Ansible
 ```
 
-Inside your travis.yml use **test_os** as environment variable for defining the operating system you would like to test.
+Here's what **test.yml** should like :
+
+```YAML
+---
+- hosts: container
+  roles:
+    - role-to-test
+```
+
+### .travis.yml file
+
+Inside your **.travis.yml** use **test_os** as environment variable for defining the operating system you would like to test.
 The images are retrieved from [linuxcontainers.org](https://images.linuxcontainers.org), for clarity instead of using the alias required by the lxd API (e.g : os/version/arch) use this naming scheme :
 
 test_os value | lxd alias
@@ -38,7 +51,7 @@ ubuntu16.04 | ubuntu/16.04/amd64
 debian9 | debian/9/amd64
 ... | ...
 
-Here's what your travis.yml should like to work with this template :
+Here's what your **.travis.yml** should like :
 
 ```YAML
 ---
