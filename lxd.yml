@@ -25,7 +25,7 @@
 
     lxd_containers:
       - name: container
-        alias: "{{ lookup('env','lxd_container_alias') }}"
+        alias: "{{ lxd_alias }}"
         profiles:
           - default
   roles:

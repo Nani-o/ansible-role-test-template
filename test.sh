@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# This script is meant to be run on travis for testing an Ansible role
+#
 ####################################################################################
 
 # Exit on failure
@@ -16,17 +19,22 @@ GREEN=$'\E[32m'
 CYAN=$'\E[36m'
 
 # Display functions
-function message()
-{
+function message() {
     COLOR="${1}"
     shift
     MESSAGE="${@}"
     echo -e "${COLOR}${MESSAGE}${NORMAL}\n"
 }
-function execution_message()
-{
+
+function execution_message() {
     message "${CYAN}" "Executing : ${@}"
 }
+
+function execute() {
+    execution_message "${@}"
+    ${@}
+}
+
 ####################################################################################
 
 # Installing Ansible
@@ -34,35 +42,33 @@ sudo -H pip install ansible netaddr
 
 ####################################################################################
 
+# Get the os tested
+lxd_alias = $(echo $test_os | tr "[[:upper:]]" "[[:lower:]]" | sed -E 's@([a-z]*)([0-9].*)@\1/\2/amd64@g')
+
 # Setting up the test environment
-message "${GREEN}" "Setting up the environment for testing"
-execution_message ansible-playbook "${DIR}/setup.yml"
-ansible-playbook "${DIR}/setup.yml"
-execution_message sudo -E ansible-playbook "${DIR}/lxd.yml"
-sudo -E ansible-playbook "${DIR}/lxd.yml"
+message "${GREEN}" "Setting up the environment for testing on ${test_os} with lxd container ${lxd_alias}"
+execute ansible-playbook "${DIR}/setup.yml"
+execute sudo -E ansible-playbook "${DIR}/lxd.yml" --extra-vars "lxd_alias=${lxd_alias}"
 
 # Copying the role to test
 message "${GREEN}" "Copying the role to test"
-execution_message cp -rf "$(pwd)" "${ROLE_DIR}"
-cp -rf "$(pwd)" "${ROLE_DIR}"
+execute cp -rf "$(pwd)" "${ROLE_DIR}"
 
 ####################################################################################
 
 # Run role setup if present
-[[ -f "${TEST_DIR}/setup.yml" ]] && (execution_message sudo -E ansible-playbook "${TEST_DIR}/setup.yml" && sudo -E ansible-playbook "${TEST_DIR}/setup.yml")
+[[ -f "${TEST_DIR}/setup.yml" ]] && execute sudo -E ansible-playbook "${TEST_DIR}/setup.yml"
 
 # Get inventory if supplied
-[[ -f "${TEST_DIR}/inventory" ]] && cp -rf "${TEST_DIR}/inventory" /etc/ansible/
+[[ -f "${TEST_DIR}/inventory" ]] && execute cp -rf "${TEST_DIR}/inventory" /etc/ansible/
 
 # Syntax Checking
 message "${GREEN}" "Checking role syntax"
-execution_message sudo -E ansible-playbook "${TEST_DIR}/test.yml" --syntax-check
-sudo -E ansible-playbook "${TEST_DIR}/test.yml" --syntax-check
+execute sudo -E ansible-playbook "${TEST_DIR}/test.yml" --syntax-check
 
 # Execution of the role
 message "${GREEN}" "Executing the role"
-execution_message sudo -E ansible-playbook "${TEST_DIR}/test.yml"
-sudo -E ansible-playbook "${TEST_DIR}/test.yml"
+execute sudo -E ansible-playbook "${TEST_DIR}/test.yml"
 
 # Idempotency of the role
 message "${GREEN}" "Testing idempotency"
@@ -75,7 +81,7 @@ tail ${idempotence} | grep -q 'changed=0.*failed=0' \
   || (message "${RED}" "Idempotence test: fail" && exit 1)
 
 # Run additional tests if present
-[[ -f "${TEST_DIR}/post-check.yml" ]] && (execution_message sudo -E ansible-playbook "${TEST_DIR}/post-check.yml" && sudo -E ansible-playbook "${TEST_DIR}/post-check.yml")
-[[ -f "${TEST_DIR}/test.sh" ]] && (execution_message sudo -E "${TEST_DIR}/test.sh" && sudo -E "${TEST_DIR}/test.sh")
+[[ -f "${TEST_DIR}/post-check.yml" ]] && execute sudo -E ansible-playbook "${TEST_DIR}/post-check.yml"
+[[ -f "${TEST_DIR}/test.sh" ]] && execute sudo -E "${TEST_DIR}/test.sh"
 
 exit 0
