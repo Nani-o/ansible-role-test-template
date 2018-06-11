@@ -83,8 +83,7 @@ script:
 Example
 -------
 
-Most of [my roles](https://github.com/search?q=user%3ANani-o+ansible-role&type=Repositories) use this template.
-You can for example check my [netdata](https://github.com/Nani-o/ansible-role-netdata) role.
+Most of [my roles](https://github.com/search?q=user%3ANani-o+ansible-role&type=Repositories) use this template, for example check my [netdata](https://github.com/Nani-o/ansible-role-netdata) role.
 
 License
 -------
