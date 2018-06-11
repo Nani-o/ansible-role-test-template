@@ -43,7 +43,7 @@ sudo -H pip install ansible netaddr
 ####################################################################################
 
 # Get the os tested
-lxd_alias = $(echo $test_os | tr "[[:upper:]]" "[[:lower:]]" | sed -E 's@([a-z]*)([0-9].*)@\1/\2/amd64@g')
+lxd_alias=$(echo ${test_os} | tr "[[:upper:]]" "[[:lower:]]" | sed -E 's@([a-z]*)([0-9].*)@\1/\2/amd64@g')
 
 # Setting up the test environment
 message "${GREEN}" "Setting up the environment for testing on ${test_os} with lxd container ${lxd_alias}"
