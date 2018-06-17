@@ -49,7 +49,7 @@ lxd_containers_names="['$(echo "${containers:-container}" | sed "s/,/','/g")']"
 # Setting up the test environment
 message "${GREEN}" "Setting up the environment for testing on ${test_os} with lxd container ${lxd_alias}"
 execute ansible-playbook "${DIR}/setup.yml"
-execute sudo -E ansible-playbook "${DIR}/lxd.yml" --extra-vars "lxd_alias=${lxd_alias} lxd_containers_names=${lxd_containers_names}"
+execute sudo -E ansible-playbook "${DIR}/lxd.yml" --extra-vars "lxd_alias=${lxd_alias}" --extra-vars "lxd_containers_names=${lxd_containers_names}"
 
 # Copying the role to test
 message "${GREEN}" "Copying the role to test"
