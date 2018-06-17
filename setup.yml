@@ -5,11 +5,6 @@
       - src: https://github.com/Nani-o/ansible-role-lxd
         name: lxd
         path: "{{ playbook_dir }}/roles/"
-    file_downloads:
-      - src: https://raw.githubusercontent.com/Nani-o/ansible-inventory-lxc/master/lxd.py
-        name: lxd.py
-        mode: "0775"
-        path: "{{ playbook_dir }}/inventory/"
   tasks:
     - name: Make sure folders exists
       file:

@@ -1,0 +1,1 @@
+container ansible_connection=lxd
