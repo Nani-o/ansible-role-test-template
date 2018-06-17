@@ -51,6 +51,8 @@ ubuntu16.04 | ubuntu/16.04/amd64
 debian9 | debian/9/amd64
 ... | ...
 
+You also use **containers** for a comma separated list of containers names if you want want more than the default solo container name "container"
+
 Here's what your **.travis.yml** should like :
 
 ```YAML
@@ -62,12 +64,15 @@ python: "2.7"
 sudo: true
 
 env:
-  - test_os: centos7
-  - test_os: centos6
-  - test_os: ubuntu16.04
-  - test_os: ubuntu14.04
-  - test_os: debian9
-  - test_os: debian8
+  globals:
+    - containers: c1,c2,c3
+  matrix:
+    - test_os: centos7
+    - test_os: centos6
+    - test_os: ubuntu16.04
+    - test_os: ubuntu14.04
+    - test_os: debian9
+    - test_os: debian8
 
 install:
   # Cloning testing template

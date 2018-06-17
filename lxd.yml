@@ -1,6 +1,6 @@
 ---
 - hosts: localhost
-  become: yes
+#  become: yes
   vars:
     lxd_profiles:
       - name: "default"
@@ -28,5 +28,25 @@
         alias: "{{ lxd_alias }}"
         profiles:
           - default
+  pre_tasks:
+    - name: Multiple containers vars setup
+      block:
+        - name: Setup empty var
+          set_fact:
+            lxd_containers: []
+        - name: Create the list of containers to deploy
+          set_fact:
+            lxd_containers: |
+                {{
+                    lxd_containers + [{
+                        'name': item,
+                        'alias': lxd_alias,
+                        'profiles': ['default']
+                    }]
+                }}
+          with_items: "{{ lxd_containers_names }}"
+      when:
+        - lxd_containers_names is defined
+        - lxd_containers_names != ''
   roles:
     - lxd
