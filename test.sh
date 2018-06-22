@@ -36,8 +36,18 @@ function execute() {
 }
 
 function travis_fold() {
-    fold_name="${2}"
-    echo -en "travis_fold:${1}:${2}\\r"
+    if [[ "${1}" == "start" ]]; then
+        fold_name="${2}"
+        time_uuid=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 9 | head -n 1)
+        start_timestamp=$(date +%s%)
+        travis_duration=""
+    else
+        finish_timestamp=$(date +%s%)
+        duration_timestamp="$((${finish_timestamp}-${start_timestamp}))"
+        travis_duration="start=${start_timestamp},finish=${finish_timestamp},duration=${duration_timestamp}"
+    fi
+     echo -en "travis_fold:${1}:${2}\\r"
+     echo -en "travis_time:${1}:${time_uuid}${travis_duration}\\r"
 }
 
 # Trap exit
