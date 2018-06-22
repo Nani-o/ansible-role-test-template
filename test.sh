@@ -5,7 +5,7 @@
 ####################################################################################
 
 # Exit on failure
-set -e
+set -eE
 
 # Set dir vars
 DIR="$( cd "$(dirname "$0")" ; pwd -P )"
@@ -35,25 +35,31 @@ function execute() {
     ${@}
 }
 
-function fold_start() {
-    echo "${1}" && echo -en "travis_fold:start:${1}\\r"
+function travis_fold() {
+    fold_name="${2}"
+    echo -en "travis_fold:${1}:${2}\\r"
 }
 
-function fold_end() {
-    echo -en "travis_fold:end:${1}\\r"
-
+# Trap exit
+function finish() {
+    travis_fold end "${fold_name}"
 }
+trap finish ERR
 
 ####################################################################################
+
+travis_fold start "install_ansible"
 
 # Installing Ansible
-fold_start "install_ansible"
+ansible_version=$(pip search ansible | grep -e '^ansible (' | awk '{print $1" "$2}')
+message "${GREEN}" "Installing ansible ${ansible_version}"
 execute sudo -H pip install ansible netaddr
-fold_end "install_ansible"
+
+travis_fold end "install_ansible"
 
 ####################################################################################
 
-fold_start "setup_env"
+travis_fold start "setup_env"
 
 # Get the os tested
 lxd_alias=$(echo ${test_os} | tr "[[:upper:]]" "[[:lower:]]" | sed -E 's@([a-z]*)([0-9].*)@\1/\2/amd64@g')
@@ -74,31 +80,31 @@ execute cp -rf "$(pwd)" "${ROLE_DIR}"
 # Get inventory if supplied
 [[ -e "${TEST_DIR}/inventory" ]] && execute cp -rf "${TEST_DIR}/inventory" /etc/ansible/
 
-fold_end "setup_env"
+travis_fold end "setup_env"
 
 ####################################################################################
 
-fold_start "test_syntax"
+travis_fold start "test_syntax"
 
 # Syntax Checking
 message "${GREEN}" "Checking role syntax"
 execute sudo -E ansible-playbook "${TEST_DIR}/test.yml" --syntax-check
 
-fold_end "test_syntax"
+travis_fold end "test_syntax"
 
 ####################################################################################
 
-fold_start "test_role"
+travis_fold start "test_role"
 
 # Execution of the role
 message "${GREEN}" "Executing the role"
 execute sudo -E ansible-playbook "${TEST_DIR}/test.yml"
 
-fold_end "test_role"
+travis_fold end "test_role"
 
 ####################################################################################
 
-fold_start "test_idempotency"
+travis_fold start "test_idempotency"
 
 # Idempotency of the role
 message "${GREEN}" "Testing idempotency"
@@ -110,16 +116,17 @@ tail ${idempotence} | grep -q 'changed=0.*failed=0' \
   && (message "${GREEN}" "Idempotence test: pass") \
   || (message "${RED}" "Idempotence test: fail" && exit 1)
 
-fold_end "test_idempotency"
+travis_fold end "test_idempotency"
 
 ####################################################################################
 
-fold_start "test_extras"
+travis_fold start "test_extras"
 
 # Run additional tests if present
+message "${GREEN}" "Running post-checks if present"
 [[ -f "${TEST_DIR}/post-check.yml" ]] && execute sudo -E ansible-playbook "${TEST_DIR}/post-check.yml"
 [[ -f "${TEST_DIR}/test.sh" ]] && execute sudo -E "${TEST_DIR}/test.sh"
 
-fold_end "test_extras"
+travis_fold end "test_extras"
 
 exit 0
