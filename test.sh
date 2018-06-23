@@ -7,9 +7,6 @@
 # Exit on failure
 set -eE
 
-# Get ENV vars
-[[ "${debug:-true,,}" == "true" ]] && ansible_debug="-v"
-
 # Set dir vars
 DIR="$( cd "$(dirname "$0")" ; pwd -P )"
 ROLE_DIR="${DIR}/roles/role-to-test"
@@ -31,6 +28,10 @@ function message() {
 
 function execution_message() {
     message "${CYAN}" "Executing : ${@}"
+}
+
+function error_message() {
+    message "${RED}" "${@}"
 }
 
 function execute() {
@@ -77,6 +78,14 @@ trap finish ERR
 
 ####################################################################################
 
+# Get ENV vars
+[[ -z "${test_os}" ]] && (error_message "ENV_VAR test_os not defined && exit 1)
+containers="${containers:-container}"
+debug="${debug:-true}"
+[[ "${debug,,}" == "true" ]] && ansible_debug="-v"
+
+####################################################################################
+
 travis_label_start "install_ansible"
 
 # Installing Ansible
@@ -92,7 +101,7 @@ travis_label_start "setup_env"
 
 # Get the os tested
 lxd_alias=$(echo ${test_os} | tr "[[:upper:]]" "[[:lower:]]" | sed -E 's@([a-z]*)([0-9].*)@\1/\2/amd64@g')
-lxd_containers_names="['$(echo "${containers:-container}" | sed "s/,/','/g")']"
+lxd_containers_names="['$(echo "${containers}" | sed "s/,/','/g")']"
 
 # Setting up the test environment
 message "${GREEN}" "Setting up the environment for testing on ${test_os} with lxd container ${lxd_alias}"
