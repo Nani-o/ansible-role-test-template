@@ -2,6 +2,7 @@
 - hosts: localhost
 #  become: yes
   vars:
+    lxd_use_lts: true
     lxd_profiles:
       - name: "default"
         description: "Default LXD profile"
