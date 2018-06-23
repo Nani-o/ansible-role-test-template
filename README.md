@@ -43,7 +43,7 @@ Here's what **test.yml** should like :
 
 Theres's multiple environment variables usable in your **.travis.yml** file.
 
-- test_os **(mandatory)**
+##### test_os **(mandatory)**
 
 ###### explanation
 
@@ -65,7 +65,7 @@ env:
   - test_os: ubuntu16.04
 ```
 
-- containers **(optional)**
+##### containers **(optional)**
 
 ###### explanation
 
@@ -81,7 +81,7 @@ env:
     containers: c1
 ```
 
-- debug **(optional)**
+##### debug **(optional)**
 
 ###### explanation
 
