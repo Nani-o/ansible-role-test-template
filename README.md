@@ -85,7 +85,7 @@ env:
 
 ###### explanation
 
-This option is set to **true** by default and adds **-v** flag to ansible's commands.
+This option is set to **false** by default and adds **-v** flag to ansible's commands when enabled.
 
 ###### example
 

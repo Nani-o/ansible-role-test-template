@@ -81,7 +81,7 @@ trap finish ERR
 # Get ENV vars
 [[ -z "${test_os}" ]] && (error_message "ENV_VAR test_os not defined" && exit 1)
 containers="${containers:-container}"
-debug="${debug:-true}"
+debug="${debug:-false}"
 [[ "${debug,,}" == "true" ]] && ansible_debug="-v"
 
 ####################################################################################
