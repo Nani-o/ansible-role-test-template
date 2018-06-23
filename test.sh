@@ -57,8 +57,8 @@ function travis_time_end() {
 }
 
 function travis_label_start() {
-    travis_time_start
     travis_fold_start "${1}"
+    travis_time_start
 }
 
 function travis_label_end() {
