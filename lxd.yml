@@ -1,28 +1,6 @@
 ---
 - hosts: localhost
   vars:
-    lxd_profiles:
-      - name: "default"
-        description: "Default LXD profile"
-        config:
-          security.privileged: "true"
-          environment.http_proxy: ""
-          user.network_mode: ""
-        devices:
-          eth0:
-            nictype: "bridged"
-            parent: "lxdbr0"
-            type: "nic"
-          root:
-            path: "/"
-            type: "disk"
-            pool: "default"
-
-    lxd_bridge:
-      ipv4:
-        address: "192.168.2.1/24"
-        nat: "true"
-
     lxd_containers:
       - name: container
         alias: "{{ lxd_alias }}"
