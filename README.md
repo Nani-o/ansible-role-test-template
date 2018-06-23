@@ -1,7 +1,7 @@
 Template for testing roles
 ==========================
 
-This an Ansible project template that I use with travis to test my roles. The main idea behind this is :
+This an Ansible project template that I use with [Travis CI](https://travis-ci.org/) to test my roles. The main idea behind this is :
 
   - Setting up an ansible project
   - Play my lxd role to deploy a container using ENVIRONMENT variables
@@ -17,7 +17,7 @@ Requirements
   - Ubuntu 14.04
   - Ubuntu 16.04
 
-The purpose of this project is to be used with travis, as of now it means running on Ubuntu trusty.
+The purpose of this project is to be runned inside a travis build, it works with either **trusty** or **xenial**.
 
 ### test folder
 
