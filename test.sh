@@ -148,9 +148,9 @@ travis_label_start "test_idempotency"
 message "${GREEN}" "Testing idempotency"
 idempotence=$(mktemp)
 execution_message sudo -E ansible-playbook "${TEST_DIR}/test.yml"
-sudo -E ansible-playbook "${TEST_DIR}/test.yml" "${ansible_debug}" | tee -a ${idempotence}
+sudo -E ansible-playbook "${TEST_DIR}/test.yml" "${ansible_debug}"
 
-tail ${idempotence} | grep -q 'changed=0.*failed=0' \
+tail "${DIR}"/ansible.log | grep -q 'changed=0.*failed=0' \
   && (message "${GREEN}" "Idempotence test: pass") \
   || (message "${RED}" "Idempotence test: fail" && exit 1)
 
