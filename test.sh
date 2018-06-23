@@ -7,6 +7,9 @@
 # Exit on failure
 set -eE
 
+# Get ENV vars
+[[ "${debug:-true,,}" == "true" ]] && ansible_debug="-v"
+
 # Set dir vars
 DIR="$( cd "$(dirname "$0")" ; pwd -P )"
 ROLE_DIR="${DIR}/roles/role-to-test"
@@ -93,15 +96,15 @@ lxd_containers_names="['$(echo "${containers:-container}" | sed "s/,/','/g")']"
 
 # Setting up the test environment
 message "${GREEN}" "Setting up the environment for testing on ${test_os} with lxd container ${lxd_alias}"
-execute ansible-playbook "${DIR}/setup.yml"
-execute sudo -E ansible-playbook "${DIR}/lxd.yml" --extra-vars "lxd_alias=${lxd_alias}" --extra-vars "lxd_containers_names=${lxd_containers_names}"
+execute ansible-playbook "${DIR}/setup.yml" "${ansible_debug}"
+execute sudo -E ansible-playbook "${DIR}/lxd.yml" --extra-vars "lxd_alias=${lxd_alias}" --extra-vars "lxd_containers_names=${lxd_containers_names}" "${ansible_debug}"
 
 # Copying the role to test
 message "${GREEN}" "Copying the role to test"
 execute cp -rf "$(pwd)" "${ROLE_DIR}"
 
 # Run role setup if present
-[[ -f "${TEST_DIR}/setup.yml" ]] && execute sudo -E ansible-playbook "${TEST_DIR}/setup.yml"
+[[ -f "${TEST_DIR}/setup.yml" ]] && execute sudo -E ansible-playbook "${TEST_DIR}/setup.yml" "${ansible_debug}"
 
 # Get inventory if supplied
 [[ -e "${TEST_DIR}/inventory" ]] && execute cp -rf "${TEST_DIR}/inventory" /etc/ansible/
@@ -124,7 +127,7 @@ travis_label_start "test_role"
 
 # Execution of the role
 message "${GREEN}" "Executing the role"
-execute sudo -E ansible-playbook "${TEST_DIR}/test.yml"
+execute sudo -E ansible-playbook "${TEST_DIR}/test.yml" "${ansible_debug}"
 
 travis_label_end
 
@@ -136,7 +139,7 @@ travis_label_start "test_idempotency"
 message "${GREEN}" "Testing idempotency"
 idempotence=$(mktemp)
 execution_message sudo -E ansible-playbook "${TEST_DIR}/test.yml"
-sudo -E ansible-playbook "${TEST_DIR}/test.yml" | tee -a ${idempotence}
+sudo -E ansible-playbook "${TEST_DIR}/test.yml" "${ansible_debug}" | tee -a ${idempotence}
 
 tail ${idempotence} | grep -q 'changed=0.*failed=0' \
   && (message "${GREEN}" "Idempotence test: pass") \
@@ -150,7 +153,7 @@ travis_label_start "test_extras"
 
 # Run additional tests if present
 message "${GREEN}" "Running post-checks if present"
-[[ -f "${TEST_DIR}/post-check.yml" ]] && execute sudo -E ansible-playbook "${TEST_DIR}/post-check.yml"
+[[ -f "${TEST_DIR}/post-check.yml" ]] && execute sudo -E ansible-playbook "${TEST_DIR}/post-check.yml" "${ansible_debug}"
 [[ -f "${TEST_DIR}/test.sh" ]] && execute sudo -E "${TEST_DIR}/test.sh"
 
 travis_label_end
