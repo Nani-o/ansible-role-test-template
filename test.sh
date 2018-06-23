@@ -37,23 +37,23 @@ function execute() {
 
 function travis_fold_start() {
     fold_name="${1}"
-    echo -en "travis_fold:start:${fold_name}\\r"
+    echo -en "travis_fold:start:${fold_name}\r"
 }
 
 function travis_fold_end() {
-    echo -e "travis_fold:end:${fold_name}\\r"
+    echo -e "travis_fold:end:${fold_name}\r"
 }
 
 function travis_time_start() {
     time_uuid=$(printf %08x $(( RANDOM * RANDOM )))
     start_timestamp=$(date +%s%N)
-    echo -e "travis_time:start:${time_uuid}\\r"
+    echo -e "travis_time:start:${time_uuid}\r"
 }
 
 function travis_time_end() {
     finish_timestamp=$(date +%s%N)
     duration_timestamp="$((${finish_timestamp}-${start_timestamp}))"
-    echo -e "travis_time:end:${time_uuid}:start=${start_timestamp},finish=${finish_timestamp},duration=${duration_timestamp}\\r"
+    echo -e "travis_time:end:${time_uuid}:start=${start_timestamp},finish=${finish_timestamp},duration=${duration_timestamp}\r"
 }
 
 function travis_label_start() {
