@@ -39,9 +39,15 @@ Here's what **test.yml** should like :
     - role-to-test
 ```
 
-### .travis.yml file
+### environment variables
 
-Inside your **.travis.yml** use **test_os** as environment variable for defining the operating system you would like to test.
+Theres's multiple environment variables usable in your **.travis.yml** file.
+
+- test_os **(mandatory)**
+
+###### explanation
+
+Use **test_os** for defining the operating system you would like to test.
 The images are retrieved from [linuxcontainers.org](https://images.linuxcontainers.org), for clarity instead of using the alias required by the lxd API (e.g : os/version/arch) use this naming scheme :
 
 test_os value | lxd alias
@@ -51,9 +57,51 @@ ubuntu16.04 | ubuntu/16.04/amd64
 debian9 | debian/9/amd64
 ... | ...
 
-You also use **containers** for a comma separated list of containers names if you want want more than the default solo container name "container"
+###### example
 
-Here's what your **.travis.yml** should like :
+```YAML
+env:
+  - test_os: centos7
+  - test_os: ubuntu16.04
+```
+
+- containers **(optional)**
+
+###### explanation
+
+Use **containers** for supplying a comma separated list of containers names if you want want more than the default solo container named "container".
+
+###### example
+
+```YAML
+env:
+  - test_os: centos7
+    containers: c1,c2
+  - test_os: ubuntu16.04
+    containers: c1
+```
+
+- debug **(optional)**
+
+###### explanation
+
+This option is set to **true** by default and adds **-v** flag to ansible's commands.
+
+###### example
+
+```YAML
+env:
+  - test_os: centos7
+    debug: true
+  - test_os: ubuntu16.04
+    debug: false
+```
+
+### .travis.yml file
+
+Other than the environment variables, the only thing you need to do inside the **.travis.yml** file is cloning this template and executing the **test.sh** script.
+
+Wrapping it up, here's what your **.travis.yml** should like :
 
 ```YAML
 ---
@@ -85,8 +133,8 @@ script:
   - bash /etc/ansible/test.sh
 ```
 
-Example
--------
+Examples
+--------
 
 Most of [my roles](https://github.com/search?q=user%3ANani-o+ansible-role&type=Repositories) use this template, for example check my [netdata](https://github.com/Nani-o/ansible-role-netdata) role.
 
