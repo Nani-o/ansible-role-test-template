@@ -146,9 +146,7 @@ travis_label_start "test_idempotency"
 
 # Idempotency of the role
 message "${GREEN}" "Testing idempotency"
-idempotence=$(mktemp)
-execution_message sudo -E ansible-playbook "${TEST_DIR}/test.yml"
-sudo -E ansible-playbook "${TEST_DIR}/test.yml" "${ansible_debug}"
+execute sudo -E ansible-playbook "${TEST_DIR}/test.yml" "${ansible_debug}"
 
 tail "${DIR}"/ansible.log | grep -q 'changed=0.*failed=0' \
   && (message "${GREEN}" "Idempotence test: pass") \
