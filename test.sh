@@ -35,41 +35,57 @@ function execute() {
     ${@}
 }
 
-function travis_fold() {
-    if [[ "${1}" == "start" ]]; then
-        fold_name="${2}"
-        time_uuid=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 9 | head -n 1)
-        start_timestamp=$(date +%s%N)
-        travis_duration=""
-    else
-        finish_timestamp=$(date +%s%N)
-        duration_timestamp="$((${finish_timestamp}-${start_timestamp}))"
-        travis_duration="start=${start_timestamp},finish=${finish_timestamp},duration=${duration_timestamp}"
-    fi
-     echo -en "travis_fold:${1}:${2}\\r"
-     echo -en "travis_time:${1}:${time_uuid}${travis_duration}\\r"
+function travis_fold_start() {
+    fold_name="${1}"
+    echo -en "travis_fold:start:${fold_name}\\r"
+}
+
+function travis_fold_end() {
+    echo -e "travis_fold:start:${fold_name}\\r"
+}
+
+function travis_time_start() {
+    time_uuid=$(printf %08x $(( RANDOM * RANDOM )))
+    start_timestamp=$(date +%s%N)
+    echo -e "travis_time:${1}:${time_uuid}\\r"
+}
+
+function travis_time_end() {
+    finish_timestamp=$(date +%s%N)
+    duration_timestamp="$((${finish_timestamp}-${start_timestamp}))"
+    echo -e "\ntravis_time:${1}:${time_uuid}:start=${start_timestamp},finish=${finish_timestamp},duration=${duration_timestamp}\\r"
+}
+
+function travis_label_start() {
+    travis_time_start
+    travis_fold_start "${1}"
+}
+
+function travis_label_end() {
+    travis_time_end
+    travis_fold_end "${1}"
 }
 
 # Trap exit
 function finish() {
-    travis_fold end "${fold_name}"
+    travis_label_end
 }
 trap finish ERR
 
 ####################################################################################
 
-travis_fold start "install_ansible"
+travis_label_start "install_ansible"
 
 # Installing Ansible
 ansible_version=$(pip search ansible | grep -e '^ansible (' | awk '{print $1" "$2}')
 message "${GREEN}" "Installing ansible ${ansible_version}"
 execute sudo -H pip install ansible netaddr
 
-travis_fold end "install_ansible"
+travis_label_end
 
 ####################################################################################
 
-travis_fold start "setup_env"
+travis_label_start "setup_env"
 
 # Get the os tested
 lxd_alias=$(echo ${test_os} | tr "[[:upper:]]" "[[:lower:]]" | sed -E 's@([a-z]*)([0-9].*)@\1/\2/amd64@g')
@@ -90,31 +106,31 @@ execute cp -rf "$(pwd)" "${ROLE_DIR}"
 # Get inventory if supplied
 [[ -e "${TEST_DIR}/inventory" ]] && execute cp -rf "${TEST_DIR}/inventory" /etc/ansible/
 
-travis_fold end "setup_env"
+travis_label_end
 
 ####################################################################################
 
-travis_fold start "test_syntax"
+travis_label_start "test_syntax"
 
 # Syntax Checking
 message "${GREEN}" "Checking role syntax"
 execute sudo -E ansible-playbook "${TEST_DIR}/test.yml" --syntax-check
 
-travis_fold end "test_syntax"
+travis_label_end
 
 ####################################################################################
 
-travis_fold start "test_role"
+travis_label_start "test_role"
 
 # Execution of the role
 message "${GREEN}" "Executing the role"
 execute sudo -E ansible-playbook "${TEST_DIR}/test.yml"
 
-travis_fold end "test_role"
+travis_label_end
 
 ####################################################################################
 
-travis_fold start "test_idempotency"
+travis_label_start "test_idempotency"
 
 # Idempotency of the role
 message "${GREEN}" "Testing idempotency"
@@ -126,17 +142,17 @@ tail ${idempotence} | grep -q 'changed=0.*failed=0' \
   && (message "${GREEN}" "Idempotence test: pass") \
   || (message "${RED}" "Idempotence test: fail" && exit 1)
 
-travis_fold end "test_idempotency"
+travis_label_end
 
 ####################################################################################
 
-travis_fold start "test_extras"
+travis_label_start "test_extras"
 
 # Run additional tests if present
 message "${GREEN}" "Running post-checks if present"
 [[ -f "${TEST_DIR}/post-check.yml" ]] && execute sudo -E ansible-playbook "${TEST_DIR}/post-check.yml"
 [[ -f "${TEST_DIR}/test.sh" ]] && execute sudo -E "${TEST_DIR}/test.sh"
 
-travis_fold end "test_extras"
+travis_label_end
 
 exit 0
