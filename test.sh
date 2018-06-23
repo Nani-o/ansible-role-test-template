@@ -77,7 +77,7 @@ trap finish ERR
 travis_label_start "install_ansible"
 
 # Installing Ansible
-ansible_version=$(pip search ansible | grep -e '^ansible (' | awk '{print $1" "$2}')
+ansible_version=$(pip search ansible | grep -e '^ansible (' | awk '{print $2}')
 message "${GREEN}" "Installing ansible ${ansible_version}"
 execute sudo -H pip install ansible netaddr
 
