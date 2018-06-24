@@ -40,12 +40,11 @@ function execute() {
 }
 
 function travis_fold_start() {
-    fold_name="${1}"
-    echo -en "travis_fold:start:${fold_name}\r"
+    echo -en "travis_fold:start:${1}\r"
 }
 
 function travis_fold_end() {
-    echo -e "travis_fold:end:${fold_name}\r"
+    echo -e "travis_fold:end:${1}\r"
 }
 
 function travis_time_start() {
@@ -70,11 +69,80 @@ function travis_label_end() {
     travis_fold_end "${1}"
 }
 
+function fold() {
+    fold_name="${1}"
+    shift
+    travis_fold_start "${fold_name}"
+    ${@}
+    travis_fold_end "${fold_name}"
+}
+
 # Trap exit
 function finish() {
-    travis_label_end
+    travis_label_end "${fold_name}"
 }
 trap finish ERR
+
+####################################################################################
+
+# Test and setup functions
+
+function install_ansible() {
+    # Installing Ansible
+    ansible_version=$(pip search ansible | grep -e '^ansible (' | awk '{print $2}')
+    message "${GREEN}" "Installing ansible ${ansible_version}"
+    execute sudo -H pip install ansible netaddr
+}
+
+function setup_env() {
+    # Get the os tested
+    lxd_alias=$(echo ${test_os} | tr "[[:upper:]]" "[[:lower:]]" | sed -E 's@([a-z]*)([0-9].*)@\1/\2/amd64@g')
+    lxd_containers_names="['$(echo "${containers}" | sed "s/,/','/g")']"
+
+    # Setting up the test environment
+    message "${GREEN}" "Setting up the environment for testing on ${test_os} with lxd container ${lxd_alias}"
+    execute ansible-playbook "${DIR}/setup.yml" "${ansible_debug}"
+    execute sudo -E ansible-playbook "${DIR}/lxd.yml" --extra-vars "lxd_alias=${lxd_alias}" --extra-vars "lxd_containers_names=${lxd_containers_names}" "${ansible_debug}"
+
+    # Copying the role to test
+    message "${GREEN}" "Copying the role to test"
+    execute cp -rf "$(pwd)" "${ROLE_DIR}"
+
+    # Run role setup if present
+    [[ -f "${TEST_DIR}/setup.yml" ]] && execute sudo -E ansible-playbook "${TEST_DIR}/setup.yml" "${ansible_debug}"
+
+    # Get inventory if supplied
+    [[ -e "${TEST_DIR}/inventory" ]] && execute cp -rf "${TEST_DIR}/inventory" /etc/ansible/
+}
+
+function test_syntax() {
+    # Syntax Checking
+    message "${GREEN}" "Checking role syntax"
+    execute sudo -E ansible-playbook "${TEST_DIR}/test.yml" --syntax-check
+}
+
+function test_role() {
+    # Execution of the role
+    message "${GREEN}" "Executing the role"
+    execute sudo -E ansible-playbook "${TEST_DIR}/test.yml" "${ansible_debug}"
+}
+
+function test_idempotency() {
+    # Idempotency of the role
+    message "${GREEN}" "Testing idempotency"
+    execute sudo -E ansible-playbook "${TEST_DIR}/test.yml" "${ansible_debug}"
+
+    tail "${DIR}"/ansible.log | grep -q 'changed=0.*failed=0' \
+      && (message "${GREEN}" "Idempotence test: pass") \
+      || (message "${RED}" "Idempotence test: fail" && exit 1)
+}
+
+function test_extras() {
+    # Run additional tests if present
+    message "${GREEN}" "Running post-checks if present"
+    [[ -f "${TEST_DIR}/post-check.yml" ]] && execute sudo -E ansible-playbook "${TEST_DIR}/post-check.yml" "${ansible_debug}"
+    [[ -f "${TEST_DIR}/test.sh" ]] && execute sudo -E "${TEST_DIR}/test.sh"
+}
 
 ####################################################################################
 
@@ -86,83 +154,14 @@ debug="${debug:-false}"
 
 ####################################################################################
 
-travis_label_start "install_ansible"
-
-# Installing Ansible
-ansible_version=$(pip search ansible | grep -e '^ansible (' | awk '{print $2}')
-message "${GREEN}" "Installing ansible ${ansible_version}"
-execute sudo -H pip install ansible netaddr
-
-travis_label_end
-
-####################################################################################
-
-travis_label_start "setup_env"
-
-# Get the os tested
-lxd_alias=$(echo ${test_os} | tr "[[:upper:]]" "[[:lower:]]" | sed -E 's@([a-z]*)([0-9].*)@\1/\2/amd64@g')
-lxd_containers_names="['$(echo "${containers}" | sed "s/,/','/g")']"
-
-# Setting up the test environment
-message "${GREEN}" "Setting up the environment for testing on ${test_os} with lxd container ${lxd_alias}"
-execute ansible-playbook "${DIR}/setup.yml" "${ansible_debug}"
-execute sudo -E ansible-playbook "${DIR}/lxd.yml" --extra-vars "lxd_alias=${lxd_alias}" --extra-vars "lxd_containers_names=${lxd_containers_names}" "${ansible_debug}"
-
-# Copying the role to test
-message "${GREEN}" "Copying the role to test"
-execute cp -rf "$(pwd)" "${ROLE_DIR}"
-
-# Run role setup if present
-[[ -f "${TEST_DIR}/setup.yml" ]] && execute sudo -E ansible-playbook "${TEST_DIR}/setup.yml" "${ansible_debug}"
-
-# Get inventory if supplied
-[[ -e "${TEST_DIR}/inventory" ]] && execute cp -rf "${TEST_DIR}/inventory" /etc/ansible/
-
-travis_label_end
+# Executing setups and tests inside travis fold
+fold "install_ansible" install_ansible
+fold "setup_env" setup_env
+fold "test_syntax" test_syntax
+fold "test_role" test_role
+fold "test_idempotency" test_idempotency
+fold "test_extras" test_extras
 
 ####################################################################################
-
-travis_label_start "test_syntax"
-
-# Syntax Checking
-message "${GREEN}" "Checking role syntax"
-execute sudo -E ansible-playbook "${TEST_DIR}/test.yml" --syntax-check
-
-travis_label_end
-
-####################################################################################
-
-travis_label_start "test_role"
-
-# Execution of the role
-message "${GREEN}" "Executing the role"
-execute sudo -E ansible-playbook "${TEST_DIR}/test.yml" "${ansible_debug}"
-
-travis_label_end
-
-####################################################################################
-
-travis_label_start "test_idempotency"
-
-# Idempotency of the role
-message "${GREEN}" "Testing idempotency"
-execute sudo -E ansible-playbook "${TEST_DIR}/test.yml" "${ansible_debug}"
-
-tail "${DIR}"/ansible.log | grep -q 'changed=0.*failed=0' \
-  && (message "${GREEN}" "Idempotence test: pass") \
-  || (message "${RED}" "Idempotence test: fail" && exit 1)
-
-travis_label_end
-
-####################################################################################
-
-travis_label_start "test_extras"
-
-# Run additional tests if present
-message "${GREEN}" "Running post-checks if present"
-[[ -f "${TEST_DIR}/post-check.yml" ]] && execute sudo -E ansible-playbook "${TEST_DIR}/post-check.yml" "${ansible_debug}"
-[[ -f "${TEST_DIR}/test.sh" ]] && execute sudo -E "${TEST_DIR}/test.sh"
-
-travis_label_end
 
 exit 0
