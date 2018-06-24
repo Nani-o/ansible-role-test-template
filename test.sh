@@ -124,13 +124,13 @@ function test_syntax() {
 function test_role() {
     # Execution of the role
     message "${GREEN}" "Executing the role"
-    execute sudo -E ansible-playbook "${TEST_DIR}/test.yml" "${ansible_debug}"
+    execute sudo -E ansible-playbook -b --become-method=su "${TEST_DIR}/test.yml" "${ansible_debug}"
 }
 
 function test_idempotency() {
     # Idempotency of the role
     message "${GREEN}" "Testing idempotency"
-    execute sudo -E ansible-playbook "${TEST_DIR}/test.yml" "${ansible_debug}"
+    execute sudo -E ansible-playbook -b --become-method=su "${TEST_DIR}/test.yml" "${ansible_debug}"
 
     tail "${DIR}"/ansible.log | grep -q 'changed=0.*failed=0' \
       && (message "${GREEN}" "Idempotence test: pass") \
@@ -140,7 +140,7 @@ function test_idempotency() {
 function test_extras() {
     # Run additional tests if present
     message "${GREEN}" "Running post-checks if present"
-    [[ -f "${TEST_DIR}/post-check.yml" ]] && execute sudo -E ansible-playbook "${TEST_DIR}/post-check.yml" "${ansible_debug}"
+    [[ -f "${TEST_DIR}/post-check.yml" ]] && execute sudo -E ansible-playbook -b --become-method=su "${TEST_DIR}/post-check.yml" "${ansible_debug}"
     [[ -f "${TEST_DIR}/test.sh" ]] && execute sudo -E "${TEST_DIR}/test.sh"
 }
 
