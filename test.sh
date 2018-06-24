@@ -48,8 +48,8 @@ function travis_fold_end() {
 }
 
 function travis_time_start() {
-    global time_uuid=$(printf %08x $(( RANDOM * RANDOM )))
-    global start_timestamp=$(date +%s%N)
+    time_uuid=$(printf %08x $(( RANDOM * RANDOM )))
+    start_timestamp=$(date +%s%N)
     echo -e "travis_time:start:${time_uuid}\r"
 }
 
@@ -70,7 +70,7 @@ function travis_label_end() {
 }
 
 function fold() {
-    global fold_name="${1}"
+    fold_name="${1}"
     shift
     travis_fold_start "${fold_name}"
     ${@}
@@ -151,6 +151,13 @@ function test_extras() {
 containers="${containers:-container}"
 debug="${debug:-false}"
 [[ "${debug,,}" == "true" ]] && ansible_debug="-v"
+
+# Vars
+time_uuid=""
+start_timestamp=""
+finish_timestamp=""
+duration_timestamp=""
+fold_name=""
 
 ####################################################################################
 
