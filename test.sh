@@ -48,8 +48,8 @@ function travis_fold_end() {
 }
 
 function travis_time_start() {
-    time_uuid=$(printf %08x $(( RANDOM * RANDOM )))
-    start_timestamp=$(date +%s%N)
+    global time_uuid=$(printf %08x $(( RANDOM * RANDOM )))
+    global start_timestamp=$(date +%s%N)
     echo -e "travis_time:start:${time_uuid}\r"
 }
 
@@ -70,7 +70,7 @@ function travis_label_end() {
 }
 
 function fold() {
-    fold_name="${1}"
+    global fold_name="${1}"
     shift
     travis_fold_start "${fold_name}"
     ${@}
@@ -79,7 +79,7 @@ function fold() {
 
 # Trap exit
 function finish() {
-    travis_label_end "${fold_name}"
+    travis_label_end
 }
 trap finish ERR
 
