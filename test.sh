@@ -107,12 +107,14 @@ function setup_env() {
     # Copying the role to test
     message "${GREEN}" "Copying the role to test"
     execute cp -rf "$(pwd)" "${ROLE_DIR}"
-    execute ls "${ROLE_DIR}"
+
     # Run role setup if present
     [[ -f "${TEST_DIR}/setup.yml" ]] && execute sudo -E ansible-playbook "${TEST_DIR}/setup.yml" "${ansible_debug}"
 
     # Get inventory if supplied
     [[ -e "${TEST_DIR}/inventory" ]] && execute cp -rf "${TEST_DIR}/inventory" /etc/ansible/
+
+    return
 }
 
 function test_syntax() {
