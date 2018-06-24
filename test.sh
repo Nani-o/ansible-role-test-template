@@ -114,7 +114,7 @@ function setup_env() {
     # Get inventory if supplied
     [[ -e "${TEST_DIR}/inventory" ]] && execute cp -rf "${TEST_DIR}/inventory" /etc/ansible/
 
-    return
+    return 0
 }
 
 function test_syntax() {
@@ -144,6 +144,8 @@ function test_extras() {
     message "${GREEN}" "Running post-checks if present"
     [[ -f "${TEST_DIR}/post-check.yml" ]] && execute sudo -E ansible-playbook -b --become-method=su "${TEST_DIR}/post-check.yml" "${ansible_debug}"
     [[ -f "${TEST_DIR}/test.sh" ]] && execute sudo -E "${TEST_DIR}/test.sh"
+
+    return 0
 }
 
 ####################################################################################
@@ -153,13 +155,6 @@ function test_extras() {
 containers="${containers:-container}"
 debug="${debug:-false}"
 [[ "${debug,,}" == "true" ]] && ansible_debug="-v"
-
-# Vars
-time_uuid=""
-start_timestamp=""
-finish_timestamp=""
-duration_timestamp=""
-fold_name=""
 
 ####################################################################################
 
