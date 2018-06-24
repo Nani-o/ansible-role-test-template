@@ -72,14 +72,14 @@ function travis_label_end() {
 function fold() {
     fold_name="${1}"
     shift
-    travis_fold_start "${fold_name}"
+    travis_label_start "${fold_name}"
     ${@}
-    travis_fold_end "${fold_name}"
+    travis_label_end "${fold_name}"
 }
 
 # Trap exit
 function finish() {
-    travis_label_end
+    travis_label_end "${fold_name}"
 }
 trap finish ERR
 
@@ -147,7 +147,7 @@ function test_extras() {
 ####################################################################################
 
 # Get ENV vars
-[[ -z "${test_os}" ]] && (error_message "ENV_VAR test_os not defined" && exit 1)
+[[ -z "${test_os}" ]] && error_message "ENV_VAR test_os not defined" && exit 1
 containers="${containers:-container}"
 debug="${debug:-false}"
 [[ "${debug,,}" == "true" ]] && ansible_debug="-v"
