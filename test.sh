@@ -91,7 +91,7 @@ function install_ansible() {
     # Installing Ansible
     ansible_version=$(pip search ansible | grep -e '^ansible (' | awk '{print $2}')
     message "${GREEN}" "Installing ansible ${ansible_version}"
-    execute sudo -H pip install ansible netaddr
+    execute sudo -H pip install ansible netaddr python-gilt
 }
 
 function setup_env() {
@@ -107,6 +107,9 @@ function setup_env() {
     # Copying the role to test
     message "${GREEN}" "Copying the role to test"
     execute cp -rf "$(pwd)" "${ROLE_DIR}"
+
+    # Executing gilt.yml if present
+    [[ -f "${TEST_DIR}/gilt.yml" ]] && (cd "${DIR}" && gilt --config "${TEST_DIR}/gilt.yml" overlay
 
     # Run role setup if present
     [[ -f "${TEST_DIR}/setup.yml" ]] && execute sudo -E ansible-playbook "${TEST_DIR}/setup.yml" "${ansible_debug}"
