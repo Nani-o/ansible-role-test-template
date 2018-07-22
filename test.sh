@@ -109,7 +109,7 @@ function setup_env() {
     execute cp -rf "$(pwd)" "${ROLE_DIR}"
 
     # Executing gilt.yml if present
-    [[ -f "${TEST_DIR}/gilt.yml" ]] && (cd "${DIR}" && gilt --config "${TEST_DIR}/gilt.yml" overlay
+    [[ -f "${TEST_DIR}/gilt.yml" ]] && (cd "${DIR}" && gilt --config "${TEST_DIR}/gilt.yml" overlay)
 
     # Run role setup if present
     [[ -f "${TEST_DIR}/setup.yml" ]] && execute sudo -E ansible-playbook "${TEST_DIR}/setup.yml" "${ansible_debug}"
