@@ -37,4 +37,7 @@
           - git
           - sudo
           - tar
+          - cron
+          - crontabs
+     ignore_errors: true
 ...
