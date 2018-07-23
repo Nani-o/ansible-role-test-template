@@ -35,11 +35,11 @@
     - name: Installing common software on containers
       package:
         name: "{{ item }}"
-     with_items:
-       - git
-       - sudo
-       - tar
-       - cron
-       - crontabs
-     ignore_errors: true
+      with_items:
+        - git
+        - sudo
+        - tar
+        - cron
+        - crontabs
+      ignore_errors: true
 ...
