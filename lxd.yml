@@ -28,3 +28,12 @@
         - lxd_containers_names != ''
   roles:
     - lxd
+
+- hosts: all:!localhost
+  tasks:
+    - name: Installing common software on containers
+      package:
+        - git
+        - sudo
+        - tar
+...
