@@ -33,7 +33,8 @@
   tasks:
     - name: Installing common software on containers
       package:
-        - git
-        - sudo
-        - tar
+        name:
+          - git
+          - sudo
+          - tar
 ...
