@@ -29,15 +29,17 @@
   roles:
     - lxd
 
+# Make a bootstrap role for installing common packages
 - hosts: all:!localhost
   tasks:
     - name: Installing common software on containers
       package:
-        name:
-          - git
-          - sudo
-          - tar
-          - cron
-          - crontabs
+        name: "{{ item }}"
+     with_items:
+       - git
+       - sudo
+       - tar
+       - cron
+       - crontabs
      ignore_errors: true
 ...
