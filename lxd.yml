@@ -41,5 +41,6 @@
         - tar
         - cron
         - crontabs
+        - unzip
       ignore_errors: true
 ...
