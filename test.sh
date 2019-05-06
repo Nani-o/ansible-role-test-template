@@ -101,7 +101,7 @@ function setup_env() {
 
     # Setting up the test environment
     message "${GREEN}" "Setting up the environment for testing on ${test_os} with lxd container ${lxd_alias}"
-    execute gilt overlay
+    execute gilt --config "${DIR}/gilt.yml" overlay
     execute sudo -E ansible-playbook "${DIR}/lxd.yml" --extra-vars "lxd_alias=${lxd_alias}" --extra-vars "lxd_containers_names=${lxd_containers_names}" "${ansible_debug}"
 
     # Copying the role to test

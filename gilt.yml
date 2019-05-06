@@ -1,5 +1,5 @@
 ---
 - git: https://github.com/Nani-o/ansible-role-lxd.git
   version: master
-  dst: roles/lxd/
+  dst: /etc/ansible/roles/lxd/
 ...
